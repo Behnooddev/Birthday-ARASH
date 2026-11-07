@@ -257,20 +257,38 @@ function drawGlobe() {
   for (let offset = -2; offset <= 2; offset++) {
     gctx.beginPath(); gctx.ellipse(cx, cy, Math.max(4, radius * Math.cos(offset * Math.PI / 6)), radius, 0, 0, Math.PI * 2); gctx.stroke();
   }
-  // Soft stippled landmasses add a map-like texture while remaining lightweight.
-  const land = [[-125,25,30,22],[-100,48,22,17],[-75,-8,15,30],[-43,-10,13,28],[-5,52,21,12],[25,10,17,27],[45,30,25,18],[80,48,37,18],[110,10,25,19],[135,-25,15,9],[20,-28,12,14]];
-  gctx.fillStyle = 'rgba(98,223,190,.34)';
-  for (const [lon,lat,rx,ry] of land) for(let a=-rx;a<=rx;a+=4) for(let b=-ry;b<=ry;b+=4) {
-    if ((a*a)/(rx*rx)+(b*b)/(ry*ry)>1) continue;
-    const point=project(lat+b,lon+a,radius*.96); if(!point) continue;
-    gctx.globalAlpha=.22+point.z*.4; gctx.fillRect(point.x,point.y,2,2);
+  // Clean map-like continent silhouettes with simplified internal country borders.
+  const continents = [
+    [[-168,70],[-145,68],[-128,55],[-124,49],[-117,32],[-105,23],[-98,18],[-83,9],[-78,8],[-76,25],[-60,46],[-66,58],[-95,72],[-130,72]],
+    [[-81,12],[-70,9],[-62,-2],[-50,-5],[-43,-22],[-50,-35],[-67,-56],[-75,-42],[-79,-15]],
+    [[-11,72],[20,72],[42,60],[60,55],[78,63],[100,70],[130,58],[160,60],[180,48],[160,35],[140,35],[125,22],[110,7],[100,5],[85,20],[72,8],[60,25],[45,35],[35,30],[28,42],[12,38],[-8,44],[-17,57]],
+    [[-17,36],[5,37],[32,30],[45,12],[42,-12],[33,-33],[17,-35],[9,-18],[-5,-4],[-14,14]],
+    [[112,-11],[130,-10],[145,-18],[153,-28],[145,-39],[128,-36],[114,-25]],
+    [[-52,82],[-25,80],[-20,65],[-42,58],[-54,68]]
+  ];
+  function drawGeoLine(points, close=false) {
+    let started=false;
+    points.forEach(([lon,lat])=>{const p=project(lat,lon,radius*.985);if(!p){started=false;return;}if(!started){gctx.moveTo(p.x,p.y);started=true;}else gctx.lineTo(p.x,p.y);});
+    if(close&&started)gctx.closePath();
   }
-  gctx.globalAlpha=1; gctx.restore();
+  continents.forEach((points,i)=>{gctx.beginPath();drawGeoLine(points,true);gctx.fillStyle=i%2?'rgba(84,191,168,.48)':'rgba(73,177,159,.52)';gctx.fill();gctx.strokeStyle='rgba(167,246,222,.68)';gctx.lineWidth=1;gctx.stroke();});
+  const borders = [
+    [[-125,49],[-110,49],[-100,49],[-95,49],[-89,47],[-82,45]], [[-117,32],[-110,32],[-105,31],[-100,29],[-97,26]],
+    [[-103,23],[-102,17],[-96,16],[-90,16],[-86,21]], [[-70,55],[-66,50],[-60,48],[-55,52],[-58,58]],
+    [[-8,50],[-4,54],[1,53]], [[-2,43],[2,43],[4,48],[8,50],[13,54]], [[5,44],[8,46],[12,46],[16,49]], [[7,44],[10,43],[13,42],[16,41]],
+    [[27,41],[29,38],[33,36]], [[35,39],[42,38],[45,35],[49,31]], [[45,39],[48,37],[52,37],[55,36]], [[53,39],[56,37],[60,35]],
+    [[60,30],[63,29],[66,29],[69,28]], [[68,23],[72,22],[76,20],[80,18]], [[80,35],[84,34],[88,28],[92,27]],
+    [[92,22],[98,22],[101,18],[105,18]], [[105,45],[110,42],[115,41],[120,39]], [[123,42],[128,42],[130,39]],
+    [[15,-4],[20,-5],[25,-8],[30,-8]], [[20,-18],[25,-18],[29,-22]], [[28,-30],[31,-29],[32,-25]],
+    [[115,-22],[122,-25],[130,-25],[137,-29]], [[140,-17],[143,-19],[149,-22]]
+  ];
+  gctx.beginPath();borders.forEach(line=>drawGeoLine(line));gctx.strokeStyle='rgba(5,27,45,.78)';gctx.lineWidth=1.35;gctx.stroke();
+  gctx.restore();
   gctx.beginPath(); gctx.arc(cx,cy,radius,0,Math.PI*2); gctx.strokeStyle='rgba(98,223,255,.55)'; gctx.lineWidth=1.3; gctx.stroke();
   countries.forEach(country=>{const p=project(country.lat,country.lon,radius);country.screen=p;if(!p)return;gctx.beginPath();gctx.arc(p.x,p.y,selectedCountry===country?5:3.4,0,Math.PI*2);gctx.fillStyle=selectedCountry===country?'#fff':'#62dfff';gctx.shadowColor='#62dfff';gctx.shadowBlur=9;gctx.fill();gctx.shadowBlur=0;});
 }
 function resizeGlobe(){const box=globe.parentElement.getBoundingClientRect();globe.style.width=`${Math.min(box.width,440)}px`;globe.style.height=globe.style.width;drawGlobe();}
-function pickCountry(x,y){let best=null,dist=20;countries.forEach(c=>{if(!c.screen)return;const d=Math.hypot(c.screen.x-x,c.screen.y-y);if(d<dist){dist=d;best=c;}});if(best){selectedCountry=best;countryLabel.textContent=`${best.name.toUpperCase()} / ${best.lang}`;greeting.textContent=best.phrase;speakAgain.disabled=false;drawGlobe();speakGreeting();}}
+function pickCountry(x,y){let best=null,dist=26;countries.forEach(c=>{if(!c.screen)return;const d=Math.hypot(c.screen.x-x,c.screen.y-y);if(d<dist){dist=d;best=c;}});if(best){selectedCountry=best;countryLabel.textContent=`${best.name.toUpperCase()} / ${best.lang}`;greeting.textContent=best.phrase;speakAgain.disabled=false;document.querySelectorAll('.history-card').forEach(card=>card.classList.toggle('country-highlight',card.dataset.tags.includes(best.name.toLowerCase())||best.name==='Iran'&&card.dataset.tags.includes('iran')));drawGlobe();speakGreeting();}}
 function speakGreeting(){if(!selectedCountry||!('speechSynthesis'in window))return;speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(selectedCountry.phrase);utterance.lang=selectedCountry.lang;utterance.rate=.86;speechSynthesis.speak(utterance);}
 globe.addEventListener('pointerdown',e=>{dragStart={x:e.clientX,y:e.clientY,rotation:globeRotation,moved:false};globe.setPointerCapture(e.pointerId);});
 globe.addEventListener('pointermove',e=>{if(!dragStart)return;const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;if(Math.abs(dx)+Math.abs(dy)>5)dragStart.moved=true;if(dragStart.moved){globeRotation=dragStart.rotation+dx/Math.max(globe.clientWidth,1)*3;drawGlobe();}});
@@ -278,4 +296,10 @@ globe.addEventListener('pointerup',e=>{if(dragStart&&!dragStart.moved){const r=g
 globe.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){globeRotation+=(e.key==='ArrowRight'?.18:-.18);drawGlobe();e.preventDefault();}});
 speakAgain.addEventListener('click',speakGreeting);
 new ResizeObserver(resizeGlobe).observe(globe.parentElement);
+
+document.querySelectorAll('.history-filters button').forEach(button=>button.addEventListener('click',()=>{
+  document.querySelectorAll('.history-filters button').forEach(item=>item.classList.toggle('active',item===button));
+  const filter=button.dataset.filter;
+  document.querySelectorAll('.history-card').forEach(card=>{card.hidden=filter!=='all'&&!card.dataset.tags.split(' ').includes(filter);});
+}));
 
