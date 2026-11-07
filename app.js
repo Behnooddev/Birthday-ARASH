@@ -128,3 +128,77 @@ answerButtons.forEach((button) => button.addEventListener('click', () => {
   }
 }));
 
+// Interactive knight puzzle: C3 to D5 is one legal L-shaped move.
+const chessBoard = document.querySelector('#chess-board');
+const chessFeedback = document.querySelector('#chess-feedback');
+const targetSquare = 'd5';
+let knightSquare = 'c3';
+function renderBoard() {
+  chessBoard.replaceChildren();
+  for (let rank = 8; rank >= 1; rank -= 1) {
+    for (let file = 0; file < 8; file += 1) {
+      const name = `${'abcdefgh'[file]}${rank}`;
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = `chess-square ${(file + rank) % 2 ? 'dark' : 'light'}${name === targetSquare ? ' target' : ''}`;
+      cell.setAttribute('role', 'gridcell');
+      cell.setAttribute('aria-label', `${name}${name === knightSquare ? ', knight' : name === targetSquare ? ', target' : ''}`);
+      if (name === knightSquare) cell.textContent = '♞';
+      if (name === targetSquare) cell.innerHTML += '<span aria-hidden="true">✦</span>';
+      cell.addEventListener('click', () => {
+        if (name === targetSquare && knightSquare === 'c3') {
+          knightSquare = name;
+          chessFeedback.textContent = 'Brilliant move. The knight reached the star in one turn!';
+          chessFeedback.classList.add('correct');
+          renderBoard();
+        } else if (name === knightSquare) {
+          chessFeedback.textContent = 'The knight is on C3. Find the L-shaped path to D5.';
+          chessFeedback.classList.remove('correct');
+        } else {
+          chessFeedback.textContent = 'Almost. A knight moves two squares one way, then one to the side.';
+          chessFeedback.classList.remove('correct');
+        }
+      });
+      chessBoard.append(cell);
+    }
+  }
+}
+renderBoard();
+document.querySelector('#new-chess').addEventListener('click', () => {
+  knightSquare = 'c3';
+  chessFeedback.textContent = 'The knight is on C3. Find the L-shaped path to D5.';
+  chessFeedback.classList.remove('correct');
+  renderBoard();
+});
+
+const phrases = [
+  { en: 'The universe is full of questions.', de: 'Das Universum ist voller Fragen.', es: 'El universo está lleno de preguntas.' },
+  { en: 'Every move creates a new possibility.', de: 'Jeder Zug eröffnet eine neue Möglichkeit.', es: 'Cada movimiento crea una nueva posibilidad.' },
+  { en: 'Words can build bridges between worlds.', de: 'Worte können Brücken zwischen Welten bauen.', es: 'Las palabras pueden tender puentes entre mundos.' },
+  { en: 'Keep exploring what you do not yet know.', de: 'Erkunde weiter, was du noch nicht kennst.', es: 'Sigue explorando lo que aún no conoces.' }
+];
+let phraseIndex = 0;
+let selectedLanguage = 'de';
+function showPhrase() {
+  const phrase = phrases[phraseIndex];
+  const source = document.querySelector('#source-phrase');
+  const translated = document.querySelector('#translated-phrase');
+  source.textContent = phrase.en;
+  source.lang = 'en';
+  source.dir = 'ltr';
+  translated.textContent = phrase[selectedLanguage];
+  translated.lang = selectedLanguage;
+  translated.dir = 'ltr';
+  document.querySelector('#word-count').textContent = `FIELD NOTE 0${phraseIndex + 1} / ${phrases.length}`;
+}
+document.querySelector('#next-phrase').addEventListener('click', () => {
+  phraseIndex = (phraseIndex + 1) % phrases.length;
+  showPhrase();
+});
+document.querySelectorAll('.language-tabs button').forEach((button) => button.addEventListener('click', () => {
+  selectedLanguage = button.dataset.lang;
+  document.querySelectorAll('.language-tabs button').forEach((tab) => tab.classList.toggle('active', tab === button));
+  showPhrase();
+}));
+showPhrase();
+
