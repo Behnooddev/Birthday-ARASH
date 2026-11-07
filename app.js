@@ -202,3 +202,80 @@ document.querySelectorAll('.language-tabs button').forEach((button) => button.ad
 }));
 showPhrase();
 
+// Lightweight 3D-style globe: geographic markers are projected onto a rotating sphere.
+const globe = document.querySelector('#birthday-globe');
+const gctx = globe.getContext('2d');
+const greeting = document.querySelector('#birthday-greeting');
+const countryLabel = document.querySelector('#globe-country');
+const speakAgain = document.querySelector('#speak-again');
+const countries = [
+  { name: 'United States', lat: 39, lon: -98, lang: 'en-US', phrase: 'Happy birthday, Arslan!' },
+  { name: 'Mexico', lat: 23, lon: -102, lang: 'es-MX', phrase: '¡Feliz cumpleaños, Arslan!' },
+  { name: 'Spain', lat: 40, lon: -4, lang: 'es-ES', phrase: '¡Feliz cumpleaños, Arslan!' },
+  { name: 'Germany', lat: 51, lon: 10, lang: 'de-DE', phrase: 'Alles Gute zum Geburtstag, Arslan!' },
+  { name: 'France', lat: 46, lon: 2, lang: 'fr-FR', phrase: 'Joyeux anniversaire, Arslan !' },
+  { name: 'Italy', lat: 42, lon: 12, lang: 'it-IT', phrase: 'Buon compleanno, Arslan!' },
+  { name: 'Brazil', lat: -10, lon: -52, lang: 'pt-BR', phrase: 'Feliz aniversário, Arslan!' },
+  { name: 'Japan', lat: 36, lon: 138, lang: 'ja-JP', phrase: 'アルスラン、お誕生日おめでとう！' },
+  { name: 'Turkey', lat: 39, lon: 35, lang: 'tr-TR', phrase: 'Doğum günün kutlu olsun, Arslan!' },
+  { name: 'Iran', lat: 32, lon: 53, lang: 'fa-IR', phrase: 'تولدت مبارک، ارسلان!' },
+  { name: 'India', lat: 21, lon: 78, lang: 'hi-IN', phrase: 'जन्मदिन मुबारक हो, अर्सलान!' },
+  { name: 'China', lat: 35, lon: 103, lang: 'zh-CN', phrase: '阿尔斯兰，生日快乐！' }
+];
+let globeRotation = -0.35;
+let dragStart = null;
+let selectedCountry = null;
+function project(lat, lon, radius) {
+  const phi = lat * Math.PI / 180;
+  const lambda = lon * Math.PI / 180 + globeRotation;
+  const x = Math.cos(phi) * Math.sin(lambda);
+  const y = Math.sin(phi);
+  const z = Math.cos(phi) * Math.cos(lambda);
+  if (z < 0) return null;
+  const w = globe.clientWidth;
+  return { x: w / 2 + x * radius, y: w / 2 - y * radius, z };
+}
+function drawGlobe() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const size = globe.clientWidth;
+  globe.width = size * dpr;
+  globe.height = size * dpr;
+  gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  gctx.clearRect(0, 0, size, size);
+  const radius = size * .43;
+  const cx = size / 2, cy = size / 2;
+  const glow = gctx.createRadialGradient(cx - radius * .35, cy - radius * .38, radius * .05, cx, cy, radius * 1.1);
+  glow.addColorStop(0, '#2a8ac0'); glow.addColorStop(.48, '#0b467a'); glow.addColorStop(1, '#041326');
+  gctx.beginPath(); gctx.arc(cx, cy, radius, 0, Math.PI * 2); gctx.fillStyle = glow; gctx.fill();
+  gctx.save(); gctx.beginPath(); gctx.arc(cx, cy, radius, 0, Math.PI * 2); gctx.clip();
+  gctx.strokeStyle = 'rgba(98,223,255,.18)'; gctx.lineWidth = 1;
+  for (const lat of [-60, -30, 0, 30, 60]) {
+    const yy = cy - Math.sin(lat * Math.PI / 180) * radius;
+    const rx = Math.cos(lat * Math.PI / 180) * radius;
+    gctx.beginPath(); gctx.ellipse(cx, yy, rx, Math.max(2, radius * .11), 0, 0, Math.PI * 2); gctx.stroke();
+  }
+  for (let offset = -2; offset <= 2; offset++) {
+    gctx.beginPath(); gctx.ellipse(cx, cy, Math.max(4, radius * Math.cos(offset * Math.PI / 6)), radius, 0, 0, Math.PI * 2); gctx.stroke();
+  }
+  // Soft stippled landmasses add a map-like texture while remaining lightweight.
+  const land = [[-125,25,30,22],[-100,48,22,17],[-75,-8,15,30],[-43,-10,13,28],[-5,52,21,12],[25,10,17,27],[45,30,25,18],[80,48,37,18],[110,10,25,19],[135,-25,15,9],[20,-28,12,14]];
+  gctx.fillStyle = 'rgba(98,223,190,.34)';
+  for (const [lon,lat,rx,ry] of land) for(let a=-rx;a<=rx;a+=4) for(let b=-ry;b<=ry;b+=4) {
+    if ((a*a)/(rx*rx)+(b*b)/(ry*ry)>1) continue;
+    const point=project(lat+b,lon+a,radius*.96); if(!point) continue;
+    gctx.globalAlpha=.22+point.z*.4; gctx.fillRect(point.x,point.y,2,2);
+  }
+  gctx.globalAlpha=1; gctx.restore();
+  gctx.beginPath(); gctx.arc(cx,cy,radius,0,Math.PI*2); gctx.strokeStyle='rgba(98,223,255,.55)'; gctx.lineWidth=1.3; gctx.stroke();
+  countries.forEach(country=>{const p=project(country.lat,country.lon,radius);country.screen=p;if(!p)return;gctx.beginPath();gctx.arc(p.x,p.y,selectedCountry===country?5:3.4,0,Math.PI*2);gctx.fillStyle=selectedCountry===country?'#fff':'#62dfff';gctx.shadowColor='#62dfff';gctx.shadowBlur=9;gctx.fill();gctx.shadowBlur=0;});
+}
+function resizeGlobe(){const box=globe.parentElement.getBoundingClientRect();globe.style.width=`${Math.min(box.width,440)}px`;globe.style.height=globe.style.width;drawGlobe();}
+function pickCountry(x,y){let best=null,dist=20;countries.forEach(c=>{if(!c.screen)return;const d=Math.hypot(c.screen.x-x,c.screen.y-y);if(d<dist){dist=d;best=c;}});if(best){selectedCountry=best;countryLabel.textContent=`${best.name.toUpperCase()} / ${best.lang}`;greeting.textContent=best.phrase;speakAgain.disabled=false;drawGlobe();speakGreeting();}}
+function speakGreeting(){if(!selectedCountry||!('speechSynthesis'in window))return;speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(selectedCountry.phrase);utterance.lang=selectedCountry.lang;utterance.rate=.86;speechSynthesis.speak(utterance);}
+globe.addEventListener('pointerdown',e=>{dragStart={x:e.clientX,y:e.clientY,rotation:globeRotation,moved:false};globe.setPointerCapture(e.pointerId);});
+globe.addEventListener('pointermove',e=>{if(!dragStart)return;const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;if(Math.abs(dx)+Math.abs(dy)>5)dragStart.moved=true;if(dragStart.moved){globeRotation=dragStart.rotation+dx/Math.max(globe.clientWidth,1)*3;drawGlobe();}});
+globe.addEventListener('pointerup',e=>{if(dragStart&&!dragStart.moved){const r=globe.getBoundingClientRect();pickCountry(e.clientX-r.left,e.clientY-r.top);}dragStart=null;});
+globe.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){globeRotation+=(e.key==='ArrowRight'?.18:-.18);drawGlobe();e.preventDefault();}});
+speakAgain.addEventListener('click',speakGreeting);
+new ResizeObserver(resizeGlobe).observe(globe.parentElement);
+
