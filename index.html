@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#03050b" />
-  <meta name="description" content="A cosmic birthday transmission for Arslan Ashrafi — fifteen years of exploration, and a universe of possibilities ahead." />
-  <title>A White Hole Emerged — Arslan Ashrafi</title>
+  <meta name="description" content="A cosmic birthday transmission for Arslan Ashrafi: chess moves, curious words, and fifteen years of exploring new worlds." />
+  <title>Arslan's Universe — Chess, Words &amp; Wonder</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +17,7 @@
   <div class="page-grain" aria-hidden="true"></div>
   <header class="topbar">
     <a class="brand" href="#home" aria-label="VoidRoot home"><span class="brand-mark">◉</span><span>VOIDROOT</span><small> / COSMIC EDITION</small></a>
-    <a class="top-index" href="#origin"><span class="live-dot"></span> TRANSMISSION <span class="mono">№ 15.11</span></a>
+    <nav class="top-nav"><a href="#chess">CHESS LAB</a><a href="#words">WORD PORTAL</a><a class="top-index" href="#origin"><span class="live-dot"></span> TRANSMISSION <span class="mono">№ 15.11</span></a></nav>
   </header>
   <main>
     <section class="hero" id="home" aria-labelledby="hero-title">
@@ -59,13 +59,25 @@
       </div>
     </section>
 
+    <section class="section chess-lab" id="chess">
+      <div class="section-label mono"><span>03 / THE CHESS LAB</span><span>THINK A MOVE AHEAD <i>●</i></span></div>
+      <div class="feature-intro reveal"><div><p class="eyebrow">A LITTLE STRATEGY, A LITTLE MAGIC</p><h2>Find the knight's<br /><span class="serif-accent">next move.</span></h2></div><p class="body-copy">The knight moves in an L. Can you guide it to the glowing square in one move?</p></div>
+      <div class="chess-game reveal"><div class="chess-board" id="chess-board" role="grid" aria-label="Mini chess puzzle"></div><div class="chess-info"><span class="mono">PUZZLE 01 / KNIGHT TOUR</span><div class="knight-symbol" aria-hidden="true">♞</div><h3>One move to starlight.</h3><p>Choose a square the knight can reach from its current position.</p><p class="chess-feedback" id="chess-feedback" aria-live="polite">The knight is on C3. Find the L-shaped path to D5.</p><button class="text-button" id="new-chess" type="button">RESET POSITION ↗</button></div></div>
+    </section>
+
+    <section class="section word-portal" id="words">
+      <div class="section-label mono"><span>04 / THE WORD PORTAL</span><span>MEANING CROSSES WORLDS <i>●</i></span></div>
+      <div class="feature-intro reveal"><div><p class="eyebrow">FOR THE LOVE OF LANGUAGE</p><h2>Every word<br />opens a <span class="serif-accent">world.</span></h2></div><p class="body-copy">A tiny translator's field note: turn a thought over, find its other language, and see what stays true.</p></div>
+      <div class="translation-card reveal"><div class="translation-head mono"><span>FIELD NOTE / 001</span><div class="language-tabs" role="group" aria-label="Choose a language"><button class="active" data-lang="en" type="button">EN</button><button data-lang="de" type="button">DE</button><button data-lang="es" type="button">ES</button></div></div><div class="phrase-pair"><p class="source-phrase" id="source-phrase" lang="en">The universe is full of questions.</p><span class="translation-arrow" aria-hidden="true">↓</span><p class="translated-phrase" id="translated-phrase" lang="de">Das Universum ist voller Fragen.</p></div><div class="translation-bottom"><span class="mono" id="word-count">FIELD NOTE 01 / 04</span><button class="button button-secondary" id="next-phrase" type="button"><span>NEXT FIELD NOTE</span><span class="button-arrow" aria-hidden="true">↗</span></button></div></div>
+    </section>
+
     <section class="section signal" id="signal">
-      <div class="section-label mono"><span>03 / THE SIGNAL ROOM</span><span>LISTENING POST <i>●</i></span></div>
+      <div class="section-label mono"><span>05 / THE SIGNAL ROOM</span><span>LISTENING POST <i>●</i></span></div>
       <div class="signal-layout reveal"><div class="signal-copy"><p class="eyebrow">A MESSAGE THROUGH THE COSMOS</p><h2>Can you hear<br />the universe<span class="accent">?</span></h2><p class="body-copy">Every signal begins as a vibration. Open a quiet little tone and watch its frequency take shape.</p><button class="button button-secondary" id="sound-toggle" type="button" aria-pressed="false"><span id="sound-label">ACTIVATE SIGNAL</span><span class="button-arrow" aria-hidden="true">↗</span></button><p class="sound-note mono">AUDIO IS OFF UNTIL YOU PRESS THE BUTTON</p></div><div class="monitor"><div class="monitor-head mono"><span>LIVE FREQUENCY ANALYSIS</span><span id="signal-status"><i></i> STANDBY</span></div><div class="monitor-center"><div class="monitor-rings" aria-hidden="true"><i></i><i></i><i></i><span></span></div><div class="waveform" id="waveform" aria-hidden="true"></div></div><div class="monitor-foot mono"><span>FREQ <b id="freq-readout">440.0 HZ</b></span><span>AMPL <b id="amp-readout">— dB</b></span><span>CH 01 / COSMIC</span></div></div></div>
     </section>
 
     <section class="section puzzle" id="puzzle">
-      <div class="section-label mono"><span>04 / PATTERN RECOGNITION</span><span>MICRO CHALLENGE <i>●</i></span></div>
+      <div class="section-label mono"><span>06 / PATTERN RECOGNITION</span><span>MICRO CHALLENGE <i>●</i></span></div>
       <div class="puzzle-layout reveal"><div><p class="eyebrow">A PATTERN HIDES IN PLAIN SIGHT</p><h2>What comes<br />next<span class="accent">?</span></h2><p class="body-copy">Follow the orbit. Which phase completes the sequence?</p></div><div class="puzzle-panel"><div class="puzzle-sequence" aria-label="Sequence: crescent, half moon, gibbous, full moon"><span class="phase phase-one">☾</span><span class="sequence-dot">·</span><span class="phase phase-two">◐</span><span class="sequence-dot">·</span><span class="phase phase-three">◕</span><span class="sequence-dot">·</span><span class="phase phase-four">●</span><span class="sequence-dot">·</span><span class="phase phase-question">?</span></div><p class="mono puzzle-prompt">SELECT THE NEXT PHASE</p><div class="puzzle-answers" role="group" aria-label="Choose the next moon phase"><button type="button" data-answer="crescent" aria-label="Crescent moon">☾</button><button type="button" data-answer="half" aria-label="Half moon">◐</button><button type="button" data-answer="gibbous" aria-label="Gibbous moon">◕</button><button type="button" data-answer="full" aria-label="Full moon">●</button></div><p class="puzzle-feedback" id="puzzle-feedback" aria-live="polite">The illuminated side is growing. Find the beginning again.</p></div></div>
     </section>
 
